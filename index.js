@@ -43,7 +43,8 @@ app.post('/usuarios', async (req, res) => {
             'INSERT INTO usuarios (nome, email, senha_hash) VALUES ($1, $2, $3) RETURNING *',
             [nome, email, senha_hash]
         );
-        res.status(201).json(result.rows[0]);
+    // res.status(201).json(result.rows[0]);
+    res.status(201).json({ mensagem: "Usuário cadastrado com sucesso" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
