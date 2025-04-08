@@ -25,6 +25,42 @@ app.get('/', (req, res) => {
     res.send('API rodando!');
 });
 
+
+// [POST] Login de usuário sem bcrypt
+app.post('/login', async (req, res) => {
+    try {
+        const { email, senha } = req.body; // Recebe email e senha da requisição
+
+        // Verifica se o email foi fornecido
+        if (!email || !senha) {
+            return res.status(400).json({ error: 'Email e senha são obrigatórios' });
+        }
+
+        // Busca o usuário pelo email
+        const result = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+
+        // Se não encontrar o usuário, retorna erro
+        if (result.rows.length === 0) {
+            return res.status(401).json({ error: 'Email ou senha inválidos' });
+        }
+
+        const usuario = result.rows[0]; // O usuário encontrado
+
+        // Verifica se a senha fornecida é igual à armazenada no banco
+        if (senha !== usuario.senha_hash) {
+            return res.status(401).json({ error: 'Email ou senha inválidos' });
+        }
+
+        // Se tudo estiver certo, retorna uma mensagem de sucesso
+        res.json({ mensagem: 'Login bem-sucedido', usuarioId: usuario.id, nome: usuario.nome });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
+
 // [GET] Listar todos os usuários
 app.get('/usuarios', async (req, res) => {
     try {
